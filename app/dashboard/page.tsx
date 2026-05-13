@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function DashboardPage() {
-  const [jobs, setJobs] = useState([])
-  const [applications, setApplications] = useState([])
+  const [jobs, setJobs] = useState<any[]>([])
+  const [applications, setApplications] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
