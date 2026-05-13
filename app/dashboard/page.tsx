@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 export default function DashboardPage() {
   const [jobs, setJobs] = useState([])
   const [applications, setApplications] = useState([])
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedApp, setSelectedApp] = useState(null)
