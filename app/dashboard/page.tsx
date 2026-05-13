@@ -93,7 +93,7 @@ export default function DashboardPage() {
     }
   }
 
-  async function updateApplicationStatus(appId, newStatus) {
+  async function updateApplicationStatus(appId: any, newStatus: any) {
     const { error } = await supabase.from('applications').update({ status: newStatus }).eq('id', appId)
     if (!error) {
       await fetchApplications()
