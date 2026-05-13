@@ -66,7 +66,7 @@ export default function DashboardPage() {
     setApplications(enrichedApps)
   }
 
-  async function handlePostJob(e) {
+  async function handlePostJob(e: React.FormEvent) {
     e.preventDefault()
     
     const jobData = { 
