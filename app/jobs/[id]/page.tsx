@@ -27,7 +27,7 @@ export default function JobDetailPage() {
 
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
+    const [user, setUser] = useState<any>(null)
     if (user) {
       const { data } = await supabase.from('applications').select('*').eq('job_id', id).eq('applicant_id', user.id).single()
       setHasApplied(!!data)
