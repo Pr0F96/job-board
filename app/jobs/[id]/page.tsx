@@ -34,7 +34,7 @@ export default function JobDetailPage() {
     }
   }
 
-  async function handleApply(e) {
+  async function handleApply(e: any) {
     e.preventDefault()
     
     if (!user) {
