@@ -12,7 +12,7 @@ export default function JobDetailPage() {
   const [user, setUser] = useState<any>(null)
   const [hasApplied, setHasApplied] = useState(false)
   const [coverLetter, setCoverLetter] = useState('')
-  const [resumeFile, setResumeFile] = useState(null)
+  const [resumeFile, setResumeFile] = useState<any>(null)
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
