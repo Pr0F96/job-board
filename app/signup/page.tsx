@@ -13,7 +13,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  async function handleSignup(e) {
+  async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
 
