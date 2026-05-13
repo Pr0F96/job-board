@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 export default function JobDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [job, setJob] = useState(null)
+  const [job, setJob] = useState<any>(null)
   const [user, setUser] = useState(null)
   const [hasApplied, setHasApplied] = useState(false)
   const [coverLetter, setCoverLetter] = useState('')
@@ -29,7 +29,7 @@ export default function JobDetailPage() {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     setUser(authUser)
     if (authUser) {
-      const { data } = await supabase.from('applications').select('*').eq('job_id', id).eq('applicant_id', user.id).single()
+      .eq('applicant_id', authUser.id).single()
       setHasApplied(!!data)
     }
   }
