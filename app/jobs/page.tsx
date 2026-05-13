@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState([])
+  const [jobs, setJobs] = useState<any[]>([])
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
