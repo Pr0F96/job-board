@@ -28,7 +28,7 @@ export default function SignupPage() {
     } else {
       // Create profile
       await supabase.from('profiles').insert({ 
-        id: data.user.id, 
+        id: data.user?.id, 
         role, 
         full_name: fullName 
       })
