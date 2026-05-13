@@ -10,7 +10,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [selectedApp, setSelectedApp] = useState(null)
+  const [selectedApp, setSelectedApp] = useState<any>(null)
   const router = useRouter()
 
   const [newJob, setNewJob] = useState({
