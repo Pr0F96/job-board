@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function JobDetailClient({ job }: { job: any }) {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
   const [hasApplied, setHasApplied] = useState(false)
   const [loading, setLoading] = useState(true)
 
