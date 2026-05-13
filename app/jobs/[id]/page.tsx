@@ -137,7 +137,7 @@ export default function JobDetailPage() {
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
-                onChange={(e) => setResumeFile(e.target.files[0])}
+                onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
                 className="w-full px-3 py-2 border rounded-lg"
               />
               {resumeFile && (
