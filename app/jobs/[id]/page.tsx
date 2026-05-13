@@ -9,7 +9,7 @@ export default function JobDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const [job, setJob] = useState<any>(null)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
   const [hasApplied, setHasApplied] = useState(false)
   const [coverLetter, setCoverLetter] = useState('')
   const [resumeFile, setResumeFile] = useState(null)
