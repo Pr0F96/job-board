@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
-export default function JobDetailClient({ job }) {
+export default function JobDetailClient({ job }: { job: any }) {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [hasApplied, setHasApplied] = useState(false)
