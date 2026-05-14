@@ -40,31 +40,45 @@ export default function DashboardPage() {
   }
 
   async function fetchApplications() {
-    const { data: apps, error } = await supabase
-      .from('applications')
-      .select('*')
-      .order('created_at', { ascending: false })
+  // First get all job IDs posted by current user
+  const { data: userJobs } = await supabase
+    .from('jobs')
+    .select('id')
+    .eq('posted_by', user.id)
 
-    if (error || !apps) {
-      setApplications([])
-      return
-    }
-
-    const enrichedApps = await Promise.all(
-      apps.map(async (app) => {
-        const { data: jobData } = await supabase.from('jobs').select('title').eq('id', app.job_id).single()
-        const { data: profileData } = await supabase.from('profiles').select('full_name').eq('id', app.applicant_id).single()
-
-        return {
-          ...app,
-          job_title: jobData?.title || 'Unknown Job',
-          applicant_name: profileData?.full_name || 'Anonymous'
-        }
-      })
-    )
-
-    setApplications(enrichedApps)
+  if (!userJobs || userJobs.length === 0) {
+    setApplications([])
+    return
   }
+
+  const jobIds = userJobs.map(job => job.id)
+
+  // Then get applications only for those jobs
+  const { data: apps, error } = await supabase
+    .from('applications')
+    .select('*')
+    .in('job_id', jobIds)
+    .order('created_at', { ascending: false })
+
+  if (error || !apps) {
+    setApplications([])
+    return
+  }
+
+  const enrichedApps = await Promise.all(
+    apps.map(async (app) => {
+      const { data: jobData } = await supabase.from('jobs').select('title').eq('id', app.job_id).single()
+      const { data: profileData } = await supabase.from('profiles').select('full_name').eq('id', app.applicant_id).single()
+      return {
+        ...app,
+        job_title: jobData?.title || 'Unknown Job',
+        applicant_name: profileData?.full_name || 'Unknown Applicant'
+      }
+    })
+  )
+
+  setApplications(enrichedApps)
+}
 
   async function handlePostJob(e: React.FormEvent) {
     e.preventDefault()
