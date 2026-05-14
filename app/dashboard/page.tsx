@@ -4,6 +4,277 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+// Filter options - easy to add more later
+const EXPERIENCE_OPTIONS = [
+  '1-3 years',
+  '3-5 years',
+  '5-8 years',
+  '8-12 years',
+  '12-15 years',
+  '15-18 years',
+  '20-25 years',
+  '25+ years'
+]
+
+const VISA_OPTIONS = [
+  'CPT',
+  'OPT',
+  'H1B',
+  'H4EAD',
+  'H1 Transfer',
+  'GC',
+  'GCEAD',
+  'TN',
+  'USC'
+]
+
+const LOCATION_OPTIONS = [
+  'Richmond, VA',
+  'Lansing, MI',
+  'Sterling, VA',
+  'New York, NY',
+  'San Francisco, CA',
+  'Austin, TX',
+  'Seattle, WA',
+  'Chicago, IL',
+  'Boston, MA',
+  'Atlanta, GA',
+  'Dallas, TX',
+  'Denver, CO',
+  'Phoenix, AZ',
+  'Miami, FL',
+  'Philadelphia, PA',
+  'San Diego, CA',
+  'Portland, OR',
+  'Nashville, TN',
+  'Charlotte, NC',
+  'Columbus, OH',
+  'Kansas City, MO',
+  'Minneapolis, MN',
+  'Indianapolis, IN',
+  'Salt Lake City, UT',
+  'Raleigh, NC',
+  'Tampa, FL',
+  'Pittsburgh, PA',
+  'Cincinnati, OH',
+  'Milwaukee, WI',
+  'Sacramento, CA',
+  'St. Louis, MO',
+  'Orlando, FL',
+  'Cleveland, OH',
+  'Virginia Beach, VA',
+  'Providence, RI',
+  'Jacksonville, FL',
+  'Hartford, CT',
+  'Birmingham, AL',
+  'Rochester, NY',
+  'Tucson, AZ',
+  'Honolulu, HI',
+  'Omaha, NE',
+  'Boise, ID',
+  'Des Moines, IA',
+  'Little Rock, AR',
+  'Madison, WI',
+  'Boulder, CO',
+  'Fort Worth, TX',
+  'San Jose, CA',
+  'Oakland, CA',
+  'Arlington, VA',
+  'Fremont, CA',
+  'Irvine, CA',
+  'Durham, NC',
+  'Plano, TX',
+  'Jersey City, NJ',
+  'Chandler, AZ',
+  'Lubbock, TX',
+  'Laredo, TX',
+  'Chesapeake, VA',
+  'Garland, TX',
+  'Scottsdale, AZ',
+  'Norfolk, VA',
+  'Fayetteville, NC',
+  'McKinney, TX',
+  'Frisco, TX',
+  'Amarillo, TX',
+  'Grand Prairie, TX',
+  'Brownsville, TX',
+  'Killeen, TX',
+  'Pasadena, TX',
+  'Mesquite, TX',
+  'McAllen, TX',
+  'Carrollton, TX',
+  'Waco, TX',
+  'Denton, TX',
+  'Midland, TX',
+  'Abilene, TX',
+  'Beaumont, TX',
+  'Odessa, TX',
+  'Round Rock, TX',
+  'Wichita Falls, TX',
+  'Richardson, TX',
+  'Lewisville, TX',
+  'Tyler, TX',
+  'College Station, TX',
+  'Pearland, TX',
+  'San Angelo, TX',
+  'Allen, TX',
+  'League City, TX',
+  'Sugar Land, TX',
+  'Longview, TX',
+  'Edinburg, TX',
+  'Mission, TX',
+  'Bryan, TX',
+  'Baytown, TX',
+  'Pharr, TX',
+  'Temple, TX',
+  'Flower Mound, TX',
+  'Missouri City, TX',
+  'Harlingen, TX',
+  'North Richland Hills, TX',
+  'Victoria, TX',
+  'Conroe, TX',
+  'New Braunfels, TX',
+  'Mansfield, TX',
+  'Cedar Park, TX',
+  'Rowlett, TX',
+  'Port Arthur, TX',
+  'Euless, TX',
+  'DeSoto, TX',
+  'Galveston, TX',
+  'Bedford, TX',
+  'Grapevine, TX',
+  'Wylie, TX',
+  'Haltom City, TX',
+  'Rosenberg, TX',
+  'Burleson, TX',
+  'Huntsville, TX',
+  'Keller, TX',
+  'The Colony, TX',
+  'Coppell, TX',
+  'Hurst, TX',
+  'Lancaster, TX',
+  'Duncanville, TX',
+  'Friendswood, TX',
+  'La Porte, TX',
+  'Texarkana, TX',
+  'San Marcos, TX',
+  'Kingsville, TX',
+  'Channelview, TX',
+  'Harker Heights, TX',
+  'Alvin, TX',
+  'Pflugerville, TX',
+  'Del Rio, TX',
+  'Lufkin, TX',
+  'Katy, TX',
+  'Saginaw, TX',
+  'Cedar Hill, TX',
+  'Fort Hood, TX',
+  'Hitchcock, TX',
+  'Dickinson, TX',
+  'Bellaire, TX',
+  'Webster, TX',
+  'West University Place, TX',
+  'Jacinto City, TX',
+  'South Houston, TX',
+  'Galena Park, TX',
+  'Bunker Hill Village, TX',
+  'Hunters Creek Village, TX',
+  'Spring Valley Village, TX',
+  'Piney Point Village, TX',
+  'Hilshire Village, TX',
+  'Hedwig Village, TX',
+  'Bellaire, TX',
+  'West University Place, TX',
+  'Southside Place, TX',
+  'Jersey Village, TX',
+  'Spring Valley, TX',
+  'Humble, TX',
+  'Atascocita, TX',
+  'Kingwood, TX',
+  'The Woodlands, TX',
+  'Sugar Land, TX',
+  'Missouri City, TX',
+  'Stafford, TX',
+  'Meadows Place, TX',
+  'Arcola, TX',
+  'Pecan Grove, TX',
+  'Four Corners, TX',
+  'Fresno, TX',
+  'Greatwood, TX',
+  'New Territory, TX',
+  'Sienna Plantation, TX',
+  'Eldorado, TX',
+  'First Colony, TX',
+  'Sugar Creek, TX',
+  'Telfair, TX',
+  'Riverstone, TX',
+  'Sienna, TX',
+  'Aliana, TX',
+  'Cross Creek Ranch, TX',
+  'Fulbrook, TX',
+  'Fulshear, TX',
+  'Pine Mill Ranch, TX',
+  'Seven Meadows, TX',
+  'Westheimer Lakes, TX',
+  'Grand Mission, TX',
+  'Elyson, TX',
+  'Jordan Ranch, TX',
+  'Cinco Ranch, TX',
+  'Katy, TX',
+  'Woodcreek Reserve, TX',
+  'Firethorne, TX',
+  'Cane Island, TX',
+  'Young Ranch, TX',
+  'Grayson Lakes, TX',
+  'Pine Creek Ranch, TX',
+  'Tamarron, TX',
+  'West Ranch, TX',
+  'Sunterra, TX',
+  'Polo Ranch, TX',
+  'Falcon Point, TX',
+  'Cinco Ranch Southwest, TX',
+  'Cinco Ranch Greenway Village, TX',
+  'Cinco Ranch Parkview, TX',
+  'Cinco Ranch Southfork, TX',
+  'Cinco Ranch West, TX',
+  'Cinco Ranch Northwest, TX',
+  'Cinco Ranch Northeast, TX',
+  'Cinco Ranch Central, TX',
+  'Cinco Ranch Southeast, TX',
+  'Cinco Ranch East, TX',
+  'Cinco Ranch North, TX',
+  'Cinco Ranch South, TX',
+  'Cinco Ranch Westpark, TX',
+  'Cinco Ranch Lakeview, TX',
+  'Cinco Ranch Parkview, TX',
+  'Cinco Ranch Greenway, TX',
+  'Cinco Ranch Southfork, TX',
+  'Cinco Ranch Southwest, TX',
+  'Cinco Ranch Northwest, TX',
+  'Cinco Ranch Southeast, TX',
+  'Cinco Ranch Northeast, TX',
+  'Cinco Ranch Central, TX',
+  'Cinco Ranch East, TX',
+  'Cinco Ranch West, TX',
+  'Cinco Ranch North, TX',
+  'Cinco Ranch South, TX'
+]
+
+const SECURITY_CLEARANCE_OPTIONS = [
+  'None',
+  'Secret',
+  'Top Secret (TS)',
+  'TS/SCI',
+  'TS/SCI with CI Polygraph',
+  'TS/SCI with Full Scope Polygraph',
+  'Public Trust',
+  'DOE Q',
+  'DOE L',
+  'SAP (Special Access Programs)',
+  'NATO Secret',
+  'NATO Confidential'
+]
+
 export default function DashboardPage() {
   const [jobs, setJobs] = useState<any[]>([])
   const [applications, setApplications] = useState<any[]>([])
@@ -15,7 +286,11 @@ export default function DashboardPage() {
 
   const [newJob, setNewJob] = useState({
     title: '', company: '', location: '', type: 'full_time',
-    salary_range: '', description: '', requirements: ''
+    salary_range: '', description: '', requirements: '',
+    experience: '',
+    visa_status: [] as string[],
+    locations: [] as string[],
+    security_clearance: [] as string[]
   })
 
   useEffect(() => {
@@ -48,7 +323,6 @@ export default function DashboardPage() {
       setApplications([])
       return
     }
-    // First get all job IDs posted by current user
     const { data: userJobs } = await supabase
       .from('jobs')
       .select('id')
@@ -61,7 +335,6 @@ export default function DashboardPage() {
 
     const jobIds = userJobs.map(job => job.id)
 
-    // Then get applications only for those jobs
     const { data: apps, error } = await supabase
       .from('applications')
       .select('*')
@@ -100,7 +373,11 @@ export default function DashboardPage() {
       description: newJob.description,
       requirements: newJob.requirements,
       status: 'active',
-      posted_by: user.id
+      posted_by: user.id,
+      experience: newJob.experience,
+      visa_status: newJob.visa_status,
+      locations: newJob.locations,
+      security_clearance: newJob.security_clearance
     }
 
     const { error } = await supabase.from('jobs').insert(jobData)
@@ -109,7 +386,14 @@ export default function DashboardPage() {
       alert('Error: ' + error.message)
     } else {
       setShowForm(false)
-      setNewJob({ title: '', company: '', location: '', type: 'full_time', salary_range: '', description: '', requirements: '' })
+      setNewJob({
+        title: '', company: '', location: '', type: 'full_time',
+        salary_range: '', description: '', requirements: '',
+        experience: '',
+        visa_status: [],
+        locations: [],
+        security_clearance: []
+      })
       await fetchJobs()
       alert('Job posted successfully!')
     }
@@ -126,6 +410,15 @@ export default function DashboardPage() {
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  // Helper for multi-select
+  function handleMultiSelect(field: string, value: string, selected: string[]) {
+    if (selected.includes(value)) {
+      setNewJob({...newJob, [field]: selected.filter(v => v !== value)})
+    } else {
+      setNewJob({...newJob, [field]: [...selected, value]})
+    }
   }
 
   if (loading) return <div className="text-center py-8">Loading...</div>
@@ -145,6 +438,8 @@ export default function DashboardPage() {
 
         {showForm && (
           <form onSubmit={handlePostJob} className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+
+            {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Job Title *</label>
@@ -157,6 +452,7 @@ export default function DashboardPage() {
                   className="w-full px-3 py-2 border rounded" />
               </div>
             </div>
+
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Location</label>
@@ -179,6 +475,7 @@ export default function DashboardPage() {
                   className="w-full px-3 py-2 border rounded" placeholder="e.g. $50k - $70k" />
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium mb-1">Description *</label>
               <textarea required rows={4} value={newJob.description} onChange={(e) => setNewJob({...newJob, description: e.target.value})}
@@ -189,7 +486,93 @@ export default function DashboardPage() {
               <textarea rows={3} value={newJob.requirements} onChange={(e) => setNewJob({...newJob, requirements: e.target.value})}
                 className="w-full px-3 py-2 border rounded" />
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+
+            {/* FILTER SECTION - Experience */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="text-lg font-semibold mb-3 text-blue-600">Job Requirements / Filters</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Experience Required *</label>
+                  <select 
+                    required
+                    value={newJob.experience} 
+                    onChange={(e) => setNewJob({...newJob, experience: e.target.value})}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Select experience...</option>
+                    {EXPERIENCE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Security Clearance</label>
+                  <select 
+                    multiple
+                    value={newJob.security_clearance}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, opt => opt.value)
+                      setNewJob({...newJob, security_clearance: selected})
+                    }}
+                    className="w-full px-3 py-2 border rounded h-24"
+                  >
+                    {SECURITY_CLEARANCE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+                </div>
+              </div>
+
+              {/* Visa Status - Multi Select */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">Visa Status Accepted (Select all that apply)</label>
+                <div className="flex flex-wrap gap-2">
+                  {VISA_OPTIONS.map(visa => (
+                    <button
+                      key={visa}
+                      type="button"
+                      onClick={() => handleMultiSelect('visa_status', visa, newJob.visa_status)}
+                      className={`px-3 py-1 rounded text-sm border transition ${
+                        newJob.visa_status.includes(visa)
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      {visa}
+                    </button>
+                  ))}
+                </div>
+                {newJob.visa_status.length > 0 && (
+                  <p className="text-xs text-green-600 mt-1">Selected: {newJob.visa_status.join(', ')}</p>
+                )}
+              </div>
+
+              {/* Locations - Multi Select */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">Work Locations (Select all acceptable)</label>
+                <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto border rounded p-2">
+                  {LOCATION_OPTIONS.map(loc => (
+                    <label key={loc} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                      <input
+                        type="checkbox"
+                        checked={newJob.locations.includes(loc)}
+                        onChange={() => handleMultiSelect('locations', loc, newJob.locations)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">{loc}</span>
+                    </label>
+                  ))}
+                </div>
+                {newJob.locations.length > 0 && (
+                  <p className="text-xs text-green-600 mt-1">Selected: {newJob.locations.join(', ')}</p>
+                )}
+              </div>
+            </div>
+
+            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">
               Publish Job
             </button>
           </form>
@@ -206,6 +589,20 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-medium">{job.title}</h3>
                     <p className="text-sm text-gray-600">{job.company}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {job.experience && (
+                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded">{job.experience}</span>
+                      )}
+                      {job.visa_status?.map((v: string) => (
+                        <span key={v} className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded">{v}</span>
+                      ))}
+                      {job.locations?.slice(0, 2).map((l: string) => (
+                        <span key={l} className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">{l}</span>
+                      ))}
+                      {job.locations?.length > 2 && (
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">+{job.locations.length - 2} more</span>
+                      )}
+                    </div>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs ${job.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                     {job.status}
