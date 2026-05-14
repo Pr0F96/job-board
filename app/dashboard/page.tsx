@@ -35,58 +35,62 @@ export default function DashboardPage() {
   }
 
   async function fetchJobs() {
-  if (!user?.id) {
-    setJobs([])
-    return
+    if (!user?.id) {
+      setJobs([])
+      return
+    }
+    const { data } = await supabase.from('jobs').select('*').eq('posted_by', user.id).order('created_at', { ascending: false })
+    setJobs(data || [])
   }
-  const { data } = await supabase.from('jobs').select('*').eq('posted_by', user.id).order('created_at', { ascending: false })
-  setJobs(data || [])
-}
 
   async function fetchApplications() {
-  // First get all job IDs posted by current user
-  const { data: userJobs } = await supabase
-    .from('jobs')
-    .select('id')
-    .eq('posted_by', user.id)
+    if (!user?.id) {
+      setApplications([])
+      return
+    }
+    // First get all job IDs posted by current user
+    const { data: userJobs } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('posted_by', user.id)
 
-  if (!userJobs || userJobs.length === 0) {
-    setApplications([])
-    return
+    if (!userJobs || userJobs.length === 0) {
+      setApplications([])
+      return
+    }
+
+    const jobIds = userJobs.map(job => job.id)
+
+    // Then get applications only for those jobs
+    const { data: apps, error } = await supabase
+      .from('applications')
+      .select('*')
+      .in('job_id', jobIds)
+      .order('created_at', { ascending: false })
+
+    if (error || !apps) {
+      setApplications([])
+      return
+    }
+
+    const enrichedApps = await Promise.all(
+      apps.map(async (app) => {
+        const { data: jobData } = await supabase.from('jobs').select('title').eq('id', app.job_id).single()
+        const { data: profileData } = await supabase.from('profiles').select('full_name').eq('id', app.applicant_id).single()
+        return {
+          ...app,
+          job_title: jobData?.title || 'Unknown Job',
+          applicant_name: profileData?.full_name || 'Unknown Applicant'
+        }
+      })
+    )
+
+    setApplications(enrichedApps)
   }
-
-  const jobIds = userJobs.map(job => job.id)
-
-  // Then get applications only for those jobs
-  const { data: apps, error } = await supabase
-    .from('applications')
-    .select('*')
-    .in('job_id', jobIds)
-    .order('created_at', { ascending: false })
-
-  if (error || !apps) {
-    setApplications([])
-    return
-  }
-
-  const enrichedApps = await Promise.all(
-    apps.map(async (app) => {
-      const { data: jobData } = await supabase.from('jobs').select('title').eq('id', app.job_id).single()
-      const { data: profileData } = await supabase.from('profiles').select('full_name').eq('id', app.applicant_id).single()
-      return {
-        ...app,
-        job_title: jobData?.title || 'Unknown Job',
-        applicant_name: profileData?.full_name || 'Unknown Applicant'
-      }
-    })
-  )
-
-  setApplications(enrichedApps)
-}
 
   async function handlePostJob(e: React.FormEvent) {
     e.preventDefault()
-    
+
     const jobData = { 
       title: newJob.title,
       company: newJob.company,
@@ -100,7 +104,7 @@ export default function DashboardPage() {
     }
 
     const { error } = await supabase.from('jobs').insert(jobData)
-    
+
     if (error) {
       alert('Error: ' + error.message)
     } else {
@@ -246,13 +250,13 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Application Details</h2>
-            
+
             <div className="space-y-3 mb-6">
               <p><span className="font-medium">Job:</span> {selectedApp.job_title}</p>
               <p><span className="font-medium">Applicant:</span> {selectedApp.applicant_name}</p>
               <p><span className="font-medium">Status:</span> {selectedApp.status}</p>
               <p><span className="font-medium">Applied:</span> {new Date(selectedApp.created_at).toLocaleDateString()}</p>
-              
+
               {selectedApp.cover_letter && (
                 <div>
                   <p className="font-medium">Cover Letter:</p>
