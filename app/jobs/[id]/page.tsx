@@ -33,12 +33,12 @@ export default function JobDetailPage() {
   async function checkUser(jobData: any = null) {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     setUser(authUser)
-    
+
     const currentJob = jobData || job
     if (authUser && currentJob) {
       setIsOwner(currentJob.posted_by === authUser.id)
     }
-    
+
     if (authUser) {
       const { data } = await supabase.from('applications').select('*').eq('job_id', id).eq('applicant_id', authUser.id).single()
       setHasApplied(!!data)
@@ -47,7 +47,7 @@ export default function JobDetailPage() {
 
   async function handleApply(e: any) {
     e.preventDefault()
-    
+
     if (!user) {
       router.push('/login')
       return
@@ -60,7 +60,7 @@ export default function JobDetailPage() {
     if (resumeFile) {
       const fileExt = resumeFile.name.split('.').pop()
       const fileName = `${user.id}-${Date.now()}.${fileExt}`
-      
+
       const { data: uploadData, error: uploadError } = await supabase
         .storage
         .from('resumes')
@@ -77,7 +77,7 @@ export default function JobDetailPage() {
         .storage
         .from('resumes')
         .getPublicUrl(fileName)
-      
+
       resumeUrl = urlData.publicUrl
     }
 
@@ -104,11 +104,11 @@ export default function JobDetailPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <Link href="/jobs" className="text-blue-600 hover:underline mb-4 inline-block">← Back to jobs</Link>
-      
+
       <div className="bg-white p-8 rounded-lg shadow-sm border">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
         <p className="text-lg text-gray-600 mb-4">{job.company} • {job.location}</p>
-        
+
         <div className="flex gap-2 mb-6">
           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded capitalize">{job.type.replace('_', ' ')}</span>
           {job.salary_range && <span className="bg-green-100 text-green-800 px-3 py-1 rounded">{job.salary_range}</span>}
@@ -117,7 +117,7 @@ export default function JobDetailPage() {
         <div className="prose max-w-none mb-8">
           <h3 className="text-lg font-semibold mb-2">Description</h3>
           <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
-          
+
           {job.requirements && (
             <>
               <h3 className="text-lg font-semibold mb-2 mt-6">Requirements</h3>
@@ -143,7 +143,7 @@ export default function JobDetailPage() {
                 placeholder="Tell us why you're a good fit..."
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Resume (PDF, DOC, DOCX)</label>
               <input
