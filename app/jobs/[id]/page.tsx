@@ -14,20 +14,31 @@ export default function JobDetailPage() {
   const [coverLetter, setCoverLetter] = useState('')
   const [resumeFile, setResumeFile] = useState<any>(null)
   const [uploading, setUploading] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
-    fetchJob()
-    checkUser()
+    async function loadData() {
+      const jobData = await fetchJob()
+      await checkUser(jobData)
+    }
+    loadData()
   }, [id])
 
   async function fetchJob() {
     const { data } = await supabase.from('jobs').select('*').eq('id', id).single()
     setJob(data)
+    return data
   }
 
-  async function checkUser() {
+  async function checkUser(jobData: any = null) {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     setUser(authUser)
+    
+    const currentJob = jobData || job
+    if (authUser && currentJob) {
+      setIsOwner(currentJob.posted_by === authUser.id)
+    }
+    
     if (authUser) {
       const { data } = await supabase.from('applications').select('*').eq('job_id', id).eq('applicant_id', authUser.id).single()
       setHasApplied(!!data)
@@ -115,7 +126,8 @@ export default function JobDetailPage() {
           )}
         </div>
 
-        {hasApplied ? (
+        {/* Show apply form to non-owners who haven't applied */}
+        {!isOwner && (hasApplied ? (
           <div className="bg-green-50 text-green-800 px-6 py-3 rounded-lg text-center font-medium">
             ✓ You have applied for this position
           </div>
@@ -153,6 +165,17 @@ export default function JobDetailPage() {
               {uploading ? 'Submitting...' : 'Apply Now'}
             </button>
           </form>
+        ))}
+
+        {/* Show applicants section only to job owner */}
+        {isOwner && (
+          <div className="mt-8 border-t pt-8">
+            <h2 className="text-2xl font-bold mb-4">Applicants</h2>
+            <p className="text-gray-500 mb-4">You can manage applications from your Dashboard.</p>
+            <Link href="/dashboard" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block">
+              Go to Dashboard →
+            </Link>
+          </div>
         )}
       </div>
     </div>
