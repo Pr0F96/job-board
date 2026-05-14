@@ -35,7 +35,7 @@ export default function DashboardPage() {
   }
 
   async function fetchJobs() {
-    const { data } = await supabase.from('jobs').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from('jobs').select('*').eq('posted_by', user.id).order('created_at', { ascending: false })
     setJobs(data || [])
   }
 
