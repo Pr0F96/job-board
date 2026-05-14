@@ -35,9 +35,13 @@ export default function DashboardPage() {
   }
 
   async function fetchJobs() {
-    const { data } = await supabase.from('jobs').select('*').eq('posted_by', user.id).order('created_at', { ascending: false })
-    setJobs(data || [])
+  if (!user?.id) {
+    setJobs([])
+    return
   }
+  const { data } = await supabase.from('jobs').select('*').eq('posted_by', user.id).order('created_at', { ascending: false })
+  setJobs(data || [])
+}
 
   async function fetchApplications() {
   // First get all job IDs posted by current user
